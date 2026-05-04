@@ -144,7 +144,13 @@ const SplitItems = ({ receipt }) => {
         setIsCapturing(true);
 
         try {
-            const dataUrl = await toPng(summaryRef.current, { pixelRatio: 2 });
+            const dataUrl = await toPng(summaryRef.current, {
+                pixelRatio: 2,
+                filter: (node) => {
+                    const cls = node.classList;
+                    return !cls?.contains('split-debts') && !cls?.contains('split-summary__actions');
+                }
+            });
             const res = await fetch(dataUrl);
             const blob = await res.blob();
             const file = new File([blob], 'split-summary.png', { type: 'image/png' });
@@ -340,7 +346,7 @@ const SplitItems = ({ receipt }) => {
 
             {/* Summary */}
             {hasTotals && (
-                <div className="split-summary">
+                <div className="split-summary" ref={summaryRef}>
                     <div className="split-summary__header">
                         <h4>Summary</h4>
                         <div className="split-summary__actions">
@@ -412,51 +418,6 @@ const SplitItems = ({ receipt }) => {
             )}
 
             </div>{/* end split-capture-zone */}
-
-            {/* Hidden clean card used only for image capture */}
-            {hasTotals && (
-                <div ref={summaryRef} className="split-image-card" aria-hidden="true">
-                    <div className="split-image-card__header">
-                        <div className="split-image-card__title">{receipt.name || 'Receipt'}</div>
-                        <div className="split-image-card__date">
-                            {new Date(receipt.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </div>
-                    </div>
-
-                    <div className="split-image-card__items">
-                        {receipt.items.map((item, i) => (
-                            <div key={i} className="split-image-card__item">
-                                <span className="split-image-card__item-name">{item.description}</span>
-                                <span className="split-image-card__item-price">${item.totalPrice.toFixed(2)}</span>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="split-image-card__people">
-                        <div className="split-image-card__people-label">Split Summary</div>
-                        {Object.entries(totals).map(([name, total]) => {
-                            const contact = people.find(p => p.name === name);
-                            return (
-                                <div key={name} className="split-image-card__person">
-                                    <div
-                                        className="split-image-card__avatar"
-                                        style={contact ? { background: contact.color } : {}}
-                                    >
-                                        {name.charAt(0).toUpperCase()}
-                                    </div>
-                                    <span className="split-image-card__person-name">{name}</span>
-                                    <span className="split-image-card__person-amount">${total.toFixed(2)}</span>
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    <div className="split-image-card__total">
-                        <span>Total</span>
-                        <span>${Object.values(totals).reduce((a, b) => a + b, 0).toFixed(2)}</span>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
