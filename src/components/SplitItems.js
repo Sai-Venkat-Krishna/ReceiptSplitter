@@ -144,8 +144,12 @@ const SplitItems = ({ receipt }) => {
         setIsCapturing(true);
 
         try {
-            const dataUrl = await toPng(summaryRef.current, {
+            const el = summaryRef.current;
+            const naturalHeight = el.scrollHeight;
+            const dataUrl = await toPng(el, {
                 pixelRatio: 2,
+                height: naturalHeight,
+                style: { height: `${naturalHeight}px`, overflow: 'visible' },
                 filter: (node) => {
                     const cls = node.classList;
                     return !cls?.contains('split-debts') && !cls?.contains('split-summary__actions');
