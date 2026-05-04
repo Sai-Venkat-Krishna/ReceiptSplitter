@@ -1,103 +1,197 @@
 .app-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
 }
 
-/* ── Header ────────────────────────────────────────────── */
+/* ── Header ───────────────────────────────────────────── */
 .app-header {
-  background-color: var(--color-dark);
-  color: white;
-  padding: 14px 24px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-  box-shadow: var(--shadow-md);
-  z-index: 100;
+    background-color: var(--color-dark);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-md);
+    z-index: 100;
 }
 
 .app-header__icon {
-  width: 22px;
-  height: 22px;
-  opacity: 0.9;
+    width: 22px;
+    height: 22px;
+    opacity: 0.9;
+    flex-shrink: 0;
 }
 
 .app-header h1 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    flex: 1;
 }
+
+.app-header__back {
+    display: none;
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    transition: background 0.15s;
+}
+
+.app-header__back:hover { background: rgba(255,255,255,0.2); }
 
 /* ── Body ─────────────────────────────────────────────── */
 .app-body {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
+    display: flex;
+    flex: 1;
+    overflow: hidden;
 }
 
 /* ── Sidebar ──────────────────────────────────────────── */
 .sidebar {
-  width: var(--sidebar-width);
-  min-width: var(--sidebar-width);
-  background: var(--color-surface);
-  border-right: 1px solid var(--color-light);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-light);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
-/* ── Sidebar Tabs ─────────────────────────────────────── */
 .sidebar-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--color-light);
-  flex-shrink: 0;
+    display: flex;
+    border-bottom: 1px solid var(--color-light);
+    flex-shrink: 0;
 }
 
 .sidebar-tab {
-  flex: 1;
-  padding: 12px 8px;
-  font-size: 0.825rem;
-  font-weight: 600;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--color-mid);
-  cursor: pointer;
-  font-family: var(--font-sans);
-  transition: color 0.15s, border-color 0.15s;
-  letter-spacing: 0.01em;
+    flex: 1;
+    padding: 12px 8px;
+    font-size: 0.825rem;
+    font-weight: 600;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--color-mid);
+    cursor: pointer;
+    font-family: var(--font-sans);
+    transition: color 0.15s, border-color 0.15s;
+    letter-spacing: 0.01em;
 }
 
-.sidebar-tab:hover {
-  color: var(--color-dark);
-}
+.sidebar-tab:hover { color: var(--color-dark); }
 
 .sidebar-tab--active {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
 }
 
 /* ── Main Panel ───────────────────────────────────────── */
 .main-panel {
-  flex: 1;
-  overflow-y: auto;
-  padding: 28px;
-  background: var(--color-bg);
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px;
+    background: var(--color-bg);
 }
+
+/* ── Mobile content/nav — hidden on desktop ───────────── */
+.mobile-content { display: none; }
+.mobile-nav     { display: none; }
 
 /* ── Mobile ───────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .app-layout { height: auto; overflow: visible; }
-  .app-body { flex-direction: column; overflow: visible; }
-  .sidebar {
-    width: 100%;
-    min-width: unset;
-    border-right: none;
-    border-bottom: 1px solid var(--color-light);
-    max-height: 40vh;
-    overflow-y: auto;
-  }
-  .main-panel { padding: 16px; overflow: visible; }
+    .app-layout {
+        height: 100dvh;
+        overflow: hidden;
+    }
+
+    .sidebar,
+    .main-panel {
+        display: none !important;
+    }
+
+    .app-body {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        background: var(--color-bg);
+    }
+
+    .app-header {
+        padding: 12px 16px;
+        padding-top: max(12px, env(safe-area-inset-top));
+    }
+
+    .app-header__back {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .mobile-nav {
+        display: flex;
+        background: var(--color-surface);
+        border-top: 1px solid var(--color-light);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        flex-shrink: 0;
+        z-index: 100;
+        box-shadow: 0 -2px 12px rgba(0,0,0,0.07);
+    }
+
+    .mobile-nav__tab {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 10px 8px;
+        min-height: 58px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--color-mid);
+        font-size: 0.68rem;
+        font-weight: 600;
+        font-family: var(--font-sans);
+        letter-spacing: 0.02em;
+        transition: color 0.15s;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-nav__tab svg {
+        width: 22px;
+        height: 22px;
+        transition: transform 0.15s;
+    }
+
+    .mobile-nav__tab--active {
+        color: var(--color-primary);
+    }
+
+    .mobile-nav__tab--active svg {
+        transform: scale(1.1);
+    }
+
+    .mobile-nav__tab--upload svg {
+        width: 28px;
+        height: 28px;
+    }
 }

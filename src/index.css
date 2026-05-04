@@ -144,3 +144,30 @@ body {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* ── Mobile global fixes ──────────────────────────────── */
+@media (max-width: 768px) {
+    /* Larger touch targets */
+    .btn {
+        min-height: 44px;
+        padding: 10px 18px;
+    }
+
+    .btn--sm {
+        min-height: 38px;
+        padding: 7px 14px;
+        font-size: 0.825rem;
+    }
+
+    /* Toast above bottom nav */
+    .toast-container {
+        bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+        right: 12px;
+        left: 12px;
+    }
+
+    .toast {
+        max-width: 100%;
+        font-size: 0.825rem;
+    }
+}

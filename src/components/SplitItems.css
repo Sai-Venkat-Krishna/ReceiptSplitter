@@ -391,6 +391,18 @@
 }
 
 @media (max-width: 768px) {
+    .split-items__header {
+        padding: 14px 16px 10px;
+    }
+
+    .contacts-quickadd {
+        padding: 8px 16px 10px;
+    }
+
+    .friends-section {
+        padding: 0 16px 12px;
+    }
+
     .split-table th,
     .split-table td {
         padding: 7px 10px;
@@ -398,6 +410,21 @@
     }
 
     .split-table__desc {
-        max-width: 110px;
+        max-width: 90px;
+    }
+
+    .split-summary {
+        padding: 16px;
+    }
+
+    .split-summary__header {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .split-summary__actions {
+        width: 100%;
+        justify-content: flex-end;
+        flex-wrap: wrap;
     }
 }

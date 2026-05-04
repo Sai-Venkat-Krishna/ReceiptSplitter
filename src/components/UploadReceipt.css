@@ -133,3 +133,35 @@
     flex-direction: column;
     gap: 20px;
 }
+
+@media (max-width: 768px) {
+    .upload-receipt {
+        max-width: 100%;
+        padding: 12px;
+    }
+
+    .upload-section {
+        padding: 16px;
+        margin-bottom: 16px;
+        border-radius: var(--radius-md);
+    }
+
+    .drop-zone {
+        min-height: 130px;
+        padding: 24px 16px;
+    }
+
+    .drop-zone__placeholder p {
+        font-size: 0.9rem;
+    }
+
+    .upload-actions {
+        flex-direction: column;
+    }
+
+    .upload-btn {
+        width: 100%;
+        min-width: unset;
+        justify-content: center;
+    }
+}
