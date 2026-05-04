@@ -143,23 +143,37 @@ const SplitItems = ({ receipt }) => {
         if (!summaryRef.current) return;
         setIsCapturing(true);
 
-        // Hide elements we don't want in the image
         const debts = summaryRef.current.querySelector('.split-debts');
         const actions = summaryRef.current.querySelector('.split-summary__actions');
         if (debts) debts.style.display = 'none';
         if (actions) actions.style.display = 'none';
 
         try {
-            const dataUrl = await toPng(summaryRef.current, {
-                pixelRatio: 2,
-                style: { borderRadius: '12px' }
-            });
+            const dataUrl = await toPng(summaryRef.current, { pixelRatio: 2 });
             const res = await fetch(dataUrl);
             const blob = await res.blob();
-            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-            addToast('Image copied to clipboard!', 'success');
-        } catch {
-            addToast('Failed to copy image', 'error');
+            const file = new File([blob], 'split-summary.png', { type: 'image/png' });
+
+            // Mobile: native share sheet with image file (iOS + Android)
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: 'Split Summary' });
+                addToast('Shared!', 'success');
+            // Desktop Chrome/Edge: copy image to clipboard
+            } else if (navigator.clipboard?.write) {
+                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                addToast('Image copied to clipboard!', 'success');
+            // Last resort: download the file
+            } else {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'split-summary.png';
+                a.click();
+                URL.revokeObjectURL(url);
+                addToast('Image downloaded!', 'success');
+            }
+        } catch (err) {
+            if (err.name !== 'AbortError') addToast('Failed to share image', 'error');
         } finally {
             if (debts) debts.style.display = '';
             if (actions) actions.style.display = '';
@@ -352,7 +366,7 @@ const SplitItems = ({ receipt }) => {
                                     <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
                                     <polyline points="21 15 16 10 5 21"/>
                                 </svg>
-                                {isCapturing ? 'Copying…' : 'Image'}
+                                {isCapturing ? 'Working…' : 'Image'}
                             </button>
                             <button
                                 className="btn btn--sm btn--primary"
