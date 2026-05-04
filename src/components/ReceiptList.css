@@ -1,0 +1,159 @@
+.receipt-list {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* ── Header ───────────────────────────────────────────── */
+.receipt-list__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 16px 12px;
+    border-bottom: 1px solid var(--color-light);
+    flex-shrink: 0;
+}
+
+.receipt-list__header h2 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-mid);
+}
+
+.receipt-list__search {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--color-light);
+    flex-shrink: 0;
+}
+
+.receipt-list__search-input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--color-light);
+    border-radius: var(--radius-sm);
+    font-size: 0.825rem;
+    font-family: var(--font-sans);
+    color: var(--color-dark);
+    background: var(--color-bg);
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+
+.receipt-list__search-input:focus {
+    border-color: var(--color-primary);
+}
+
+.receipt-list__count {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
+/* ── Items Container ─────────────────────────────────── */
+.receipt-list__items {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* ── Empty State ─────────────────────────────────────── */
+.receipt-list__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--color-mid);
+}
+
+.receipt-list__empty svg {
+    width: 40px;
+    height: 40px;
+    opacity: 0.35;
+    margin-bottom: 4px;
+}
+
+.receipt-list__empty p {
+    font-weight: 500;
+    color: var(--color-dark);
+}
+
+.receipt-list__empty span {
+    font-size: 0.8rem;
+    color: var(--color-primary);
+}
+
+/* ── Receipt Card ─────────────────────────────────────── */
+.receipt-card {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--color-bg);
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+    border-left: 3px solid transparent;
+}
+
+.receipt-card:hover {
+    background: var(--color-bg);
+}
+
+.receipt-card--active {
+    background: var(--color-primary-light);
+    border-left-color: var(--color-primary);
+}
+
+.receipt-card--active:hover {
+    background: var(--color-primary-light);
+}
+
+.receipt-card--skeleton {
+    pointer-events: none;
+    padding: 16px;
+    border-bottom: 1px solid var(--color-bg);
+}
+
+.receipt-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.receipt-card__name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-dark);
+    line-height: 1.3;
+    flex: 1;
+}
+
+.receipt-card__total {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    white-space: nowrap;
+}
+
+.receipt-card__meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.775rem;
+    color: var(--color-mid);
+    margin-bottom: 10px;
+}
+
+.receipt-card__delete {
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.receipt-card:hover .receipt-card__delete {
+    opacity: 1;
+}

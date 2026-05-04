@@ -1,0 +1,403 @@
+.split-items {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-light);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ── Header ───────────────────────────────────────────── */
+.split-items__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.split-items__header h3 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.tax-toggle {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.825rem;
+    color: var(--color-mid);
+    cursor: pointer;
+    user-select: none;
+}
+
+.tax-toggle input[type="checkbox"] {
+    accent-color: var(--color-primary);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+/* ── Contacts Quick-Add ───────────────────────────────── */
+.contacts-quickadd {
+    padding: 8px 24px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-light);
+}
+
+.contacts-quickadd__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.contacts-quickadd__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.contacts-quickadd__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px 3px 4px;
+    background: white;
+    border: 1px solid var(--color-light);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    color: var(--color-dark);
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+
+.contacts-quickadd__chip:hover {
+    border-color: var(--chip-color, var(--color-primary));
+    background: var(--color-primary-light);
+    transform: scale(1.03);
+}
+
+.contacts-quickadd__avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* ── Friends Section ──────────────────────────────────── */
+.friends-section {
+    padding: 0 24px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--color-bg);
+}
+
+.friends-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex: 1;
+}
+
+.friend-chip {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--color-primary-light);
+    border-radius: 999px;
+    padding: 4px 4px 4px 6px;
+    border: 1px solid #c7d2fe;
+}
+
+.friend-chip__avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 6px;
+}
+
+.friend-chip__input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 0.825rem;
+    font-family: var(--font-sans);
+    color: var(--color-primary-dark);
+    font-weight: 500;
+    width: 90px;
+    min-width: 60px;
+}
+
+.friend-chip__input::placeholder {
+    color: #818cf8;
+}
+
+.friend-chip__save {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-success);
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 0 4px;
+    line-height: 1;
+    border-radius: 999px;
+    transition: color 0.15s, transform 0.1s;
+    title: "Save to contacts";
+}
+
+.friend-chip__save:hover {
+    color: #16a34a;
+    transform: scale(1.2);
+}
+
+.friend-chip__remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #818cf8;
+    font-size: 0.75rem;
+    padding: 0 6px;
+    line-height: 1;
+    border-radius: 999px;
+    transition: color 0.15s;
+}
+
+.friend-chip__remove:hover {
+    color: var(--color-danger);
+}
+
+.split-capture-zone {
+    background: var(--color-surface);
+}
+
+/* ── Split Table ──────────────────────────────────────── */
+.split-table-wrap {
+    overflow-x: auto;
+    border-bottom: 1px solid var(--color-light);
+}
+
+.split-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.split-table th {
+    text-align: left;
+    padding: 9px 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-mid);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-light);
+}
+
+.split-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--color-bg);
+    vertical-align: middle;
+}
+
+.split-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.split-table tbody tr:hover {
+    background: var(--color-bg);
+}
+
+.split-table__desc {
+    max-width: 220px;
+    font-weight: 500;
+}
+
+.split-table__price {
+    color: var(--color-mid);
+    white-space: nowrap;
+}
+
+.split-table__check {
+    text-align: center;
+}
+
+.split-checkbox {
+    width: 17px;
+    height: 17px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+}
+
+/* ── Summary ──────────────────────────────────────────── */
+.split-summary {
+    margin: 0;
+    padding: 20px 24px;
+    background: var(--color-primary-light);
+    border-top: 1px solid #c7d2fe;
+}
+
+.split-summary__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.split-summary__actions {
+    display: flex;
+    gap: 8px;
+}
+
+.split-summary__header h4 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.split-summary__totals {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.split-summary__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.split-summary__avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.split-summary__name {
+    flex: 1;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-dark);
+}
+
+.split-summary__amount {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.split-summary__share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.split-summary__total-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #c7d2fe;
+}
+
+.split-summary__total-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.split-summary__total-amount {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+/* ── Debts ────────────────────────────────────────────── */
+.split-debts {
+    border-top: 1px solid #c7d2fe;
+    padding-top: 12px;
+}
+
+.split-debts__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-primary-dark);
+    margin-bottom: 8px;
+}
+
+.split-debt-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    padding: 4px 0;
+    color: var(--color-dark);
+}
+
+.split-debt-item__from {
+    font-weight: 600;
+}
+
+.split-debt-item__arrow {
+    color: var(--color-primary);
+}
+
+.split-debt-item__to {
+    font-weight: 600;
+}
+
+.split-debt-item__amount {
+    margin-left: auto;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+@media (max-width: 768px) {
+    .split-table th,
+    .split-table td {
+        padding: 7px 10px;
+        font-size: 0.8rem;
+    }
+
+    .split-table__desc {
+        max-width: 110px;
+    }
+}

@@ -1,0 +1,172 @@
+.receipt-display {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-light);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ── Header ───────────────────────────────────────────── */
+.receipt-display__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--color-light);
+    background: var(--color-bg);
+}
+
+.receipt-display__merchant {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.receipt-display__date {
+    font-size: 0.825rem;
+    color: var(--color-mid);
+}
+
+.receipt-display__total-badge {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    white-space: nowrap;
+}
+
+/* ── Table ────────────────────────────────────────────── */
+.receipt-table-wrap {
+    overflow-x: auto;
+}
+
+.receipt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.receipt-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-mid);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-light);
+}
+
+.receipt-table td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--color-bg);
+    vertical-align: middle;
+}
+
+.receipt-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.receipt-table tbody tr:nth-child(even) {
+    background: #fafbfc;
+}
+
+.receipt-table__weighted {
+    background: #f0fdf4 !important;
+}
+
+.receipt-table__desc {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 260px;
+}
+
+.receipt-table__tag {
+    font-size: 0.7rem;
+    background: #dcfce7;
+    color: #16a34a;
+    border-radius: 999px;
+    padding: 1px 7px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.receipt-table__item-total {
+    font-weight: 500;
+}
+
+.receipt-table__input {
+    width: 80px;
+    padding: 4px 8px;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-family: var(--font-sans);
+    outline: none;
+}
+
+/* ── Footer rows ──────────────────────────────────────── */
+.receipt-table tfoot tr td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--color-bg);
+}
+
+.receipt-table__discount-row td {
+    color: var(--color-danger);
+    font-style: italic;
+    font-size: 0.875rem;
+}
+
+.receipt-table__tax-row td {
+    color: var(--color-mid);
+    font-size: 0.875rem;
+}
+
+.receipt-table__total-row {
+    border-top: 2px solid var(--color-light) !important;
+    background: var(--color-bg);
+}
+
+.receipt-table__total-row td {
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    border-bottom: none !important;
+}
+
+.receipt-table__actions {
+    display: flex;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.receipt-table__input--desc {
+    width: 160px;
+}
+
+.receipt-table-footer {
+    padding: 10px 16px;
+    border-top: 1px solid var(--color-light);
+    background: var(--color-bg);
+}
+
+@media (max-width: 768px) {
+    .receipt-table th,
+    .receipt-table td {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+
+    .receipt-table__desc {
+        max-width: 120px;
+    }
+
+    .receipt-table__input {
+        width: 60px;
+    }
+
+    .receipt-table__input--desc {
+        width: 100px;
+    }
+}

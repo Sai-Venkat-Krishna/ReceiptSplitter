@@ -1,0 +1,135 @@
+.upload-receipt {
+    max-width: 860px;
+}
+
+.upload-receipt__hint {
+    margin-top: -8px;
+    margin-bottom: 4px;
+    font-size: 0.875rem;
+    color: var(--color-mid);
+    text-align: center;
+}
+
+/* ── Upload Section Card ──────────────────────────────── */
+.upload-section {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-light);
+    margin-bottom: 24px;
+}
+
+.upload-section h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.upload-section__subtitle {
+    font-size: 0.85rem;
+    color: var(--color-mid);
+    margin-bottom: 20px;
+}
+
+/* ── Drop Zone ────────────────────────────────────────── */
+.drop-zone {
+    border: 2px dashed var(--color-light);
+    border-radius: var(--radius-md);
+    padding: 36px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: var(--color-bg);
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.drop-zone:hover {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.drop-zone--active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    border-style: solid;
+}
+
+.drop-zone--has-file {
+    cursor: default;
+    padding: 16px;
+    border-style: solid;
+    border-color: var(--color-primary);
+}
+
+/* ── Placeholder ─────────────────────────────────────── */
+.drop-zone__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-mid);
+    pointer-events: none;
+}
+
+.drop-zone__placeholder svg {
+    width: 40px;
+    height: 40px;
+    opacity: 0.4;
+    margin-bottom: 4px;
+}
+
+.drop-zone__placeholder p {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--color-dark);
+}
+
+.drop-zone__placeholder span {
+    font-size: 0.8rem;
+    color: var(--color-primary);
+}
+
+/* ── Preview ─────────────────────────────────────────── */
+.drop-zone__preview-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.drop-zone__preview {
+    max-height: 220px;
+    max-width: 100%;
+    border-radius: var(--radius-md);
+    object-fit: contain;
+    box-shadow: var(--shadow-sm);
+}
+
+.drop-zone__clear {
+    font-size: 0.8rem;
+}
+
+/* ── Actions ─────────────────────────────────────────── */
+.upload-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.upload-btn {
+    min-width: 148px;
+    justify-content: center;
+}
+
+/* ── Receipt Content ─────────────────────────────────── */
+.receipt-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
