@@ -1,3 +1,135 @@
+/* ── Hidden image capture card ────────────────────────── */
+.split-image-card {
+    position: fixed;
+    left: -9999px;
+    top: 0;
+    width: 380px;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    pointer-events: none;
+}
+
+.split-image-card__header {
+    background: #1e293b;
+    color: white;
+    padding: 20px 24px;
+}
+
+.split-image-card__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.split-image-card__date {
+    font-size: 0.78rem;
+    opacity: 0.65;
+    margin-top: 3px;
+}
+
+.split-image-card__items {
+    padding: 14px 24px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.split-image-card__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 0.825rem;
+    border-bottom: 1px solid #f1f5f9;
+    gap: 12px;
+}
+
+.split-image-card__item:last-child { border-bottom: none; }
+
+.split-image-card__item-name {
+    color: #1e293b;
+    font-weight: 500;
+    flex: 1;
+}
+
+.split-image-card__item-price {
+    color: #64748b;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.split-image-card__people {
+    padding: 16px 24px;
+    background: #e0e7ff;
+}
+
+.split-image-card__people-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #4f46e5;
+    margin-bottom: 12px;
+}
+
+.split-image-card__person {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+}
+
+.split-image-card__avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #6366f1;
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.split-image-card__person-name {
+    flex: 1;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.split-image-card__person-amount {
+    font-size: 0.975rem;
+    font-weight: 700;
+    color: #4f46e5;
+}
+
+.split-image-card__total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px;
+    background: #6366f1;
+    color: white;
+}
+
+.split-image-card__total span:first-child {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.85;
+}
+
+.split-image-card__total span:last-child {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+/* ── Main component ───────────────────────────────────── */
 .split-items {
     background: var(--color-surface);
     border-radius: var(--radius-lg);
