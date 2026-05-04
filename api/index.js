@@ -96,7 +96,7 @@ function processReceiptItems(receiptItems, taxAmount, discountAmount) {
 
 
 // Updated route for receipt processing
-app.post('/process-receipt', async (req, res) => {
+app.post('/api/process-receipt', async (req, res) => {
     console.log('Received request to process receipt');
 
     if (!req.body.image) {
@@ -159,7 +159,7 @@ app.post('/process-receipt', async (req, res) => {
 });
 
 // Route to fetch receipts
-app.get('/receipts', async (req, res) => {
+app.get('/api/receipts', async (req, res) => {
     try {
         const receipts = await Item.find().sort({ date: -1 }).limit(20);
         res.status(200).send(receipts);
@@ -170,7 +170,7 @@ app.get('/receipts', async (req, res) => {
 });
 
 // Route to delete a receipt
-app.delete('/receipts/:id', async (req, res) => {
+app.delete('/api/receipts/:id', async (req, res) => {
     try {
         await Item.findByIdAndDelete(req.params.id);
         res.status(200).send({ message: 'Receipt deleted successfully' });
@@ -181,7 +181,7 @@ app.delete('/receipts/:id', async (req, res) => {
 });
 
 // PUT route to update a receipt
-app.put('/receipts/:id', async (req, res) => {
+app.put('/api/receipts/:id', async (req, res) => {
     try {
         const updatedReceipt = await Item.findByIdAndUpdate(
             req.params.id,
@@ -208,7 +208,7 @@ app.put('/receipts/:id', async (req, res) => {
 });
 
 // Route to save splits for a receipt
-app.put('/receipts/:id/splits', async (req, res) => {
+app.put('/api/receipts/:id/splits', async (req, res) => {
     try {
         const splits = Object.entries(req.body.totals || {}).map(([personName, amount]) => ({
             personName,
@@ -235,7 +235,7 @@ app.put('/receipts/:id/splits', async (req, res) => {
 
 // ── People / Contacts Routes ────────────────────────────
 
-app.get('/people', async (req, res) => {
+app.get('/api/people', async (req, res) => {
     try {
         const people = await Person.find().sort({ name: 1 });
         res.status(200).send(people);
@@ -244,7 +244,7 @@ app.get('/people', async (req, res) => {
     }
 });
 
-app.post('/people', async (req, res) => {
+app.post('/api/people', async (req, res) => {
     try {
         const { name, color } = req.body;
         const person = new Person({ name, color });
@@ -255,7 +255,7 @@ app.post('/people', async (req, res) => {
     }
 });
 
-app.put('/people/:id', async (req, res) => {
+app.put('/api/people/:id', async (req, res) => {
     try {
         const { name, color } = req.body;
         const updated = await Person.findByIdAndUpdate(
@@ -270,7 +270,7 @@ app.put('/people/:id', async (req, res) => {
     }
 });
 
-app.delete('/people/:id', async (req, res) => {
+app.delete('/api/people/:id', async (req, res) => {
     try {
         await Person.findByIdAndDelete(req.params.id);
         res.status(200).send({ message: 'Person deleted' });
