@@ -1,24 +1,27 @@
 // Pure helpers for the split feature, extracted from SplitItems for testability.
 
-// Settle balances so everyone ends up paying the average of the group totals.
-export const computeDebts = (totals) => {
-    const names = Object.keys(totals);
-    if (names.length < 2) return [];
-    const mean = Object.values(totals).reduce((a, b) => a + b, 0) / names.length;
-    const balances = names.map(name => ({ name, balance: totals[name] - mean }));
-    const debtors   = balances.filter(b => b.balance >  0.005).sort((a, b) => b.balance - a.balance);
-    const creditors = balances.filter(b => b.balance < -0.005).sort((a, b) => a.balance - b.balance);
-    const debts = [];
-    let i = 0, j = 0;
-    while (i < debtors.length && j < creditors.length) {
-        const amount = Math.min(debtors[i].balance, -creditors[j].balance);
-        debts.push({ from: debtors[i].name, to: creditors[j].name, amount });
-        debtors[i].balance  -= amount;
-        creditors[j].balance += amount;
-        if (Math.abs(debtors[i].balance)  < 0.005) i++;
-        if (Math.abs(creditors[j].balance) < 0.005) j++;
-    }
-    return debts;
+// Everyone except the payer owes the payer their own share.
+export const computeOwedToPayer = (totals, paidBy) => {
+    if (!paidBy || !(paidBy in totals)) return [];
+    return Object.entries(totals)
+        .filter(([name, amount]) => name !== paidBy && amount > 0.005)
+        .map(([name, amount]) => ({ from: name, to: paidBy, amount }));
+};
+
+// Items nobody is assigned to yet — surfaced so totals aren't silently short.
+export const computeUnassigned = (items, splits) => {
+    let count = 0;
+    let amount = 0;
+    const indices = [];
+    (items || []).forEach((item, itemIndex) => {
+        const anyChecked = Object.values(splits[itemIndex] || {}).some(Boolean);
+        if (!anyChecked && item.totalPrice !== 0) {
+            count += 1;
+            amount += item.totalPrice;
+            indices.push(itemIndex);
+        }
+    });
+    return { count, amount, indices };
 };
 
 // Splits saved before splitFriends existed stored names in totals-accrual
@@ -65,13 +68,21 @@ export const restoreSplitState = (receipt) => {
     return {
         friends: friends.length > 0 ? friends : [''],
         splits,
-        includeTax: receipt.splitIncludeTax || false
+        includeTax: receipt.splitIncludeTax || false,
+        includeDiscount: receipt.splitIncludeDiscount || false,
+        paidBy: receipt.splitPaidBy || ''
     };
 };
 
-export const buildShareText = (receipt, totals) => {
+export const buildShareText = (receipt, totals, paidBy = '') => {
     const grandTotal = Object.values(totals).reduce((a, b) => a + b, 0);
     const lines = Object.entries(totals).map(([n, t]) => `${n} — $${t.toFixed(2)}`);
     const header = receipt.name ? `Split for ${receipt.name}` : 'Split Summary';
-    return [header, '', ...lines, '', `Total: $${grandTotal.toFixed(2)}`].join('\n');
+    const parts = [header, '', ...lines, '', `Total: $${grandTotal.toFixed(2)}`];
+    const debts = computeOwedToPayer(totals, paidBy);
+    if (debts.length > 0) {
+        parts.push('', `${paidBy} paid — send them:`);
+        debts.forEach(d => parts.push(`${d.from} → $${d.amount.toFixed(2)}`));
+    }
+    return parts.join('\n');
 };

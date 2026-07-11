@@ -1,26 +1,48 @@
 import {
-    computeDebts,
+    computeOwedToPayer,
+    computeUnassigned,
     reconstructLegacyFriends,
     restoreSplitState,
     buildShareText
 } from './splitUtils';
 
-describe('computeDebts', () => {
-    it('returns no debts for fewer than two people', () => {
-        expect(computeDebts({})).toEqual([]);
-        expect(computeDebts({ Alice: 10 })).toEqual([]);
+describe('computeOwedToPayer', () => {
+    it('returns nothing without a payer or with an unknown payer', () => {
+        expect(computeOwedToPayer({ Alice: 10, Bob: 5 }, '')).toEqual([]);
+        expect(computeOwedToPayer({ Alice: 10, Bob: 5 }, 'Zed')).toEqual([]);
     });
 
-    it('returns no debts when everyone owes the same', () => {
-        expect(computeDebts({ Alice: 10, Bob: 10 })).toEqual([]);
+    it('everyone except the payer owes the payer their own share', () => {
+        const debts = computeOwedToPayer({ Alice: 30, Bob: 10, Carol: 5 }, 'Bob');
+        expect(debts).toEqual([
+            { from: 'Alice', to: 'Bob', amount: 30 },
+            { from: 'Carol', to: 'Bob', amount: 5 }
+        ]);
     });
 
-    it('settles the person above the mean with the person below it', () => {
-        const debts = computeDebts({ Alice: 30, Bob: 10 });
-        expect(debts).toHaveLength(1);
-        expect(debts[0].from).toBe('Alice');
-        expect(debts[0].to).toBe('Bob');
-        expect(debts[0].amount).toBeCloseTo(10);
+    it('skips zero shares', () => {
+        expect(computeOwedToPayer({ Alice: 0, Bob: 10 }, 'Bob')).toEqual([]);
+    });
+});
+
+describe('computeUnassigned', () => {
+    const items = [
+        { description: 'Pizza', totalPrice: 30 },
+        { description: 'Salad', totalPrice: 20 },
+        { description: 'Freebie', totalPrice: 0 }
+    ];
+
+    it('counts items with no checked friends, ignoring zero-priced ones', () => {
+        const result = computeUnassigned(items, { 0: { 1: true } });
+        expect(result.count).toBe(1);
+        expect(result.amount).toBe(20);
+        expect(result.indices).toEqual([1]);
+    });
+
+    it('treats all-false friend maps as unassigned', () => {
+        const result = computeUnassigned(items, { 0: { 1: false }, 1: { 0: true } });
+        expect(result.count).toBe(1);
+        expect(result.indices).toEqual([0]);
     });
 });
 
@@ -91,11 +113,18 @@ describe('restoreSplitState', () => {
     });
 
     it('uses splitFriends verbatim when present (new format)', () => {
-        const receipt = { ...baseReceipt, splitFriends: ['Alice', 'Bob', 'Carol'] };
+        const receipt = {
+            ...baseReceipt,
+            splitFriends: ['Alice', 'Bob', 'Carol'],
+            splitIncludeDiscount: true,
+            splitPaidBy: 'Bob'
+        };
         const state = restoreSplitState(receipt);
         expect(state.friends).toEqual(['Alice', 'Bob', 'Carol']);
         expect(state.splits).toEqual({ 0: { 2: true }, 1: { 1: true }, 2: { 0: true } });
         expect(state.includeTax).toBe(true);
+        expect(state.includeDiscount).toBe(true);
+        expect(state.paidBy).toBe('Bob');
     });
 
     it('reconstructs column order for legacy saves without splitFriends', () => {
@@ -128,5 +157,12 @@ describe('buildShareText', () => {
 
     it('uses a generic header when the receipt has no name', () => {
         expect(buildShareText({}, { A: 1 })).toContain('Split Summary');
+    });
+
+    it('appends who-owes-the-payer lines when a payer is set', () => {
+        const text = buildShareText({ name: 'Cafe' }, { Alice: 10, Bob: 20 }, 'Bob');
+        expect(text).toContain('Bob paid — send them:');
+        expect(text).toContain('Alice → $10.00');
+        expect(text).not.toContain('Bob → ');
     });
 });

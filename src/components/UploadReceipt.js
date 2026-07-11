@@ -36,6 +36,16 @@ const UploadReceipt = ({ activeReceipt, onReceiptProcessed }) => {
         acceptFile(e.dataTransfer.files[0]);
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const handleCreateBlank = async () => {
+        try {
+            const response = await axios.post('/api/receipts', { name: 'New Receipt' });
+            onReceiptProcessed(response.data);
+            addToast('Blank receipt created — add items below', 'success');
+        } catch (error) {
+            addToast('Failed to create receipt', 'error');
+        }
+    };
+
     const handleUpload = async () => {
         if (!selectedFile) {
             addToast('Please select a receipt image first', 'error');
@@ -119,6 +129,12 @@ const UploadReceipt = ({ activeReceipt, onReceiptProcessed }) => {
                         {isLoading ? 'Processing…' : 'Process Receipt'}
                     </button>
                 </div>
+
+                {!preview && !isLoading && (
+                    <button className="upload-blank-link" onClick={handleCreateBlank}>
+                        No photo? Start a blank receipt and add items by hand →
+                    </button>
+                )}
 
                 {isLoading && <Loading />}
             </div>

@@ -31,7 +31,10 @@ const itemSchema = new mongoose.Schema({
             friendIndices: [Number]
         }
     ],
-    splitIncludeTax: { type: Boolean, default: false }
+    splitIncludeTax: { type: Boolean, default: false },
+    splitIncludeDiscount: { type: Boolean, default: false },
+    // Name of the friend who paid the bill — drives "who owes whom"
+    splitPaidBy: { type: String, default: '' }
 });
 
 module.exports = mongoose.model('Item', itemSchema);

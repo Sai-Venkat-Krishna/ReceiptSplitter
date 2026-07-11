@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import ConfirmModal from './ConfirmModal';
 import { useToast } from '../context/ToastContext';
@@ -11,29 +11,11 @@ const SkeletonCard = () => (
     </div>
 );
 
-const ReceiptList = ({ activeReceipt, onSelectReceipt }) => {
-    const [receipts, setReceipts] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+const ReceiptList = ({ receipts, isLoading, activeReceipt, onSelectReceipt, onDeleted }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [receiptToDelete, setReceiptToDelete] = useState(null);
     const { addToast } = useToast();
-
-    useEffect(() => {
-        fetchReceipts();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const fetchReceipts = async () => {
-        setIsLoading(true);
-        try {
-            const response = await axios.get('/api/receipts');
-            setReceipts(response.data);
-        } catch (error) {
-            addToast('Failed to fetch receipts', 'error');
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const handleDeleteClick = (e, receipt) => {
         e.stopPropagation();
@@ -44,10 +26,7 @@ const ReceiptList = ({ activeReceipt, onSelectReceipt }) => {
     const handleDeleteConfirm = async () => {
         try {
             await axios.delete(`/api/receipts/${receiptToDelete._id}`);
-            setReceipts(prev => prev.filter(r => r._id !== receiptToDelete._id));
-            if (activeReceipt && activeReceipt._id === receiptToDelete._id) {
-                onSelectReceipt(null);
-            }
+            onDeleted(receiptToDelete._id);
             addToast('Receipt deleted', 'success');
         } catch (error) {
             addToast('Failed to delete receipt', 'error');
@@ -112,7 +91,14 @@ const ReceiptList = ({ activeReceipt, onSelectReceipt }) => {
                             </div>
                             <div className="receipt-card__meta">
                                 <span>{new Date(receipt.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                                <span>{receipt.items?.length || 0} items</span>
+                                <span>
+                                    {receipt.items?.length || 0} items
+                                    {receipt.splits?.length > 0 && (
+                                        <span className="receipt-card__split-badge" title={`Split between ${receipt.splits.length} people`}>
+                                            ÷{receipt.splits.length}
+                                        </span>
+                                    )}
+                                </span>
                             </div>
                             <button
                                 className="btn btn--sm btn--danger receipt-card__delete"

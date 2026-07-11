@@ -69,11 +69,11 @@
 }
 
 .receipt-table tbody tr:nth-child(even) {
-    background: #fafbfc;
+    background: var(--color-surface-alt);
 }
 
 .receipt-table__weighted {
-    background: #f0fdf4 !important;
+    background: var(--color-success-soft) !important;
 }
 
 .receipt-table__desc {
@@ -85,8 +85,8 @@
 
 .receipt-table__tag {
     font-size: 0.7rem;
-    background: #dcfce7;
-    color: #16a34a;
+    background: var(--color-success-soft);
+    color: var(--color-success-strong);
     border-radius: 999px;
     padding: 1px 7px;
     font-weight: 500;
@@ -169,4 +169,48 @@
     .receipt-table__input--desc {
         width: 100px;
     }
+}
+
+/* ── Rename ───────────────────────────────────────────── */
+.receipt-display__merchant {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.receipt-display__rename {
+    background: transparent;
+    border: none;
+    color: var(--color-mid);
+    cursor: pointer;
+    padding: 3px;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    opacity: 0.55;
+    transition: opacity 0.15s, color 0.15s;
+}
+
+.receipt-display__rename:hover {
+    opacity: 1;
+    color: var(--color-primary);
+}
+
+.receipt-display__name-input {
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: var(--font-sans);
+    color: var(--color-dark);
+    background: var(--color-surface);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    padding: 2px 10px;
+    margin-bottom: 3px;
+    outline: none;
+    max-width: 100%;
+}
+
+.receipt-table__input {
+    background: var(--color-surface);
+    color: var(--color-dark);
 }

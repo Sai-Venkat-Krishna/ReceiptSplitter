@@ -7,13 +7,39 @@ const ReceiptDisplay = ({ receipt, onUpdateReceipt }) => {
     const [isEditing, setIsEditing] = useState(null);
     const [editedItems, setEditedItems] = useState(receipt.items);
     const [total, setTotal] = useState(receipt.total);
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [nameDraft, setNameDraft] = useState(receipt.name || '');
     const { addToast } = useToast();
 
     useEffect(() => {
         setEditedItems(receipt.items);
         setTotal(receipt.total);
         setIsEditing(null);
+        setIsEditingName(false);
+        setNameDraft(receipt.name || '');
     }, [receipt]);
+
+    const handleSaveName = async () => {
+        const trimmed = nameDraft.trim();
+        setIsEditingName(false);
+        if (!trimmed || trimmed === receipt.name) {
+            setNameDraft(receipt.name || '');
+            return;
+        }
+        try {
+            const response = await axios.put(`/api/receipts/${receipt._id}`, {
+                ...receipt,
+                name: trimmed,
+                items: editedItems,
+                total
+            });
+            if (onUpdateReceipt) onUpdateReceipt(response.data);
+            addToast('Receipt renamed', 'success');
+        } catch (error) {
+            setNameDraft(receipt.name || '');
+            addToast('Failed to rename receipt', 'error');
+        }
+    };
 
     const handleInputChange = (index, field, value) => {
         const updated = [...editedItems];
@@ -60,7 +86,33 @@ const ReceiptDisplay = ({ receipt, onUpdateReceipt }) => {
         <div className="receipt-display">
             <div className="receipt-display__header">
                 <div>
-                    <h3 className="receipt-display__merchant">{receipt.name || 'Unknown Store'}</h3>
+                    {isEditingName ? (
+                        <input
+                            className="receipt-display__name-input"
+                            value={nameDraft}
+                            autoFocus
+                            onChange={e => setNameDraft(e.target.value)}
+                            onBlur={handleSaveName}
+                            onKeyDown={e => {
+                                if (e.key === 'Enter') e.target.blur();
+                                if (e.key === 'Escape') { setNameDraft(receipt.name || ''); setIsEditingName(false); }
+                            }}
+                        />
+                    ) : (
+                        <h3 className="receipt-display__merchant">
+                            {receipt.name || 'Unknown Store'}
+                            <button
+                                className="receipt-display__rename"
+                                onClick={() => setIsEditingName(true)}
+                                title="Rename receipt"
+                                aria-label="Rename receipt"
+                            >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                </svg>
+                            </button>
+                        </h3>
+                    )}
                     <p className="receipt-display__date">{formatDate(receipt.date)}</p>
                 </div>
                 <div className="receipt-display__total-badge">

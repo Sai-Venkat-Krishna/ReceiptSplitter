@@ -44,7 +44,9 @@ const storedSplits = [
 
 const expectRestoredColumns = async () => {
     // Column headers in original order — regression for the jumbled-names bug
-    const headers = screen.getAllByRole('columnheader').map(h => h.textContent);
+    const headers = screen.getAllByRole('columnheader').map(h =>
+        h.querySelector('.split-th-name')?.textContent ?? h.textContent
+    );
     expect(headers).toEqual(['Item', 'Price', 'Alice', 'Bob', 'Carol']);
 
     // Checkbox grid restored: rows x columns, row-major
@@ -119,6 +121,57 @@ describe('SplitItems save', () => {
         expect(url).toBe('/api/receipts/r3/splits');
         expect(body.friends).toEqual(['Alice', 'Bob', 'Carol']);
         expect(body.assignments).toEqual(assignments);
+        expect(body.paidBy).toBe('');
         expect(onSplitSaved).toHaveBeenCalledWith(updated);
+    });
+});
+
+describe('SplitItems bulk tools', () => {
+    it('splits everything evenly and reports the unassigned gap when cleared', async () => {
+        renderSplit({
+            _id: 'r4',
+            name: 'Bulk',
+            total: 60,
+            tax: 0,
+            items,
+            splits: storedSplits,
+            splitFriends: ['Alice', 'Bob', 'Carol'],
+            splitAssignments: assignments
+        });
+
+        await userEvent.click(await screen.findByRole('button', { name: /split everything evenly/i }));
+        // every checkbox in the grid is now checked
+        expect(screen.getAllByRole('checkbox').every(b => b.checked)).toBe(true);
+        // $60 split three ways
+        await waitFor(() => {
+            const rows = [...document.querySelectorAll('.split-summary__row')].map(r => r.textContent);
+            expect(rows.filter(t => t.includes('$20.00'))).toHaveLength(3);
+        });
+
+        await userEvent.click(screen.getByRole('button', { name: /clear all/i }));
+        expect(screen.getAllByRole('checkbox').some(b => b.checked)).toBe(false);
+    });
+
+    it('shows who owes the payer once one is selected', async () => {
+        renderSplit({
+            _id: 'r5',
+            name: 'Payer',
+            total: 60,
+            tax: 0,
+            items,
+            splits: storedSplits,
+            splitFriends: ['Alice', 'Bob', 'Carol'],
+            splitAssignments: assignments
+        });
+
+        const select = await screen.findByRole('combobox');
+        await userEvent.selectOptions(select, 'Bob');
+
+        await waitFor(() => {
+            const debtRows = [...document.querySelectorAll('.split-debt-item')].map(r => r.textContent);
+            expect(debtRows).toHaveLength(2);
+            expect(debtRows.join(' ')).toContain('Carol');
+            expect(debtRows.join(' ')).toContain('Alice');
+        });
     });
 });

@@ -158,6 +158,26 @@ app.post('/api/process-receipt', async (req, res) => {
     }
 });
 
+// Route to create a receipt manually (no image)
+app.post('/api/receipts', async (req, res) => {
+    try {
+        const newItem = new Item({
+            type: 'receipt',
+            name: (req.body.name || 'New Receipt').trim(),
+            date: req.body.date || new Date(),
+            total: 0,
+            items: [],
+            tax: 0,
+            discount: 0
+        });
+        await newItem.save();
+        res.status(201).send(newItem);
+    } catch (error) {
+        console.error('Error creating receipt:', error);
+        res.status(500).send({ error: 'Failed to create receipt' });
+    }
+});
+
 // Route to fetch receipts
 app.get('/api/receipts', async (req, res) => {
     try {
@@ -183,16 +203,21 @@ app.delete('/api/receipts/:id', async (req, res) => {
 // PUT route to update a receipt
 app.put('/api/receipts/:id', async (req, res) => {
     try {
+        const update = {
+            items: req.body.items,
+            total: req.body.total,
+            tax: req.body.tax,
+            discount: req.body.discount,
+        };
+        if (typeof req.body.name === 'string' && req.body.name.trim()) {
+            update.name = req.body.name.trim();
+        }
+        if (req.body.date) {
+            update.date = req.body.date;
+        }
         const updatedReceipt = await Item.findByIdAndUpdate(
             req.params.id,
-            {
-                $set: {
-                    items: req.body.items,
-                    total: req.body.total,
-                    tax: req.body.tax,
-                    discount: req.body.discount,
-                }
-            },
+            { $set: update },
             { new: true }
         );
 
@@ -221,7 +246,9 @@ app.put('/api/receipts/:id/splits', async (req, res) => {
                     splits,
                     splitFriends: Array.isArray(req.body.friends) ? req.body.friends : [],
                     splitAssignments: req.body.assignments || [],
-                    splitIncludeTax: req.body.includeTax || false
+                    splitIncludeTax: req.body.includeTax || false,
+                    splitIncludeDiscount: req.body.includeDiscount || false,
+                    splitPaidBy: typeof req.body.paidBy === 'string' ? req.body.paidBy : ''
                 }
             },
             { new: true }

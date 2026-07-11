@@ -165,3 +165,35 @@
         justify-content: center;
     }
 }
+
+/* ── Blank receipt link ───────────────────────────────── */
+.upload-blank-link {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    background: none;
+    border: none;
+    font-family: var(--font-sans);
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    cursor: pointer;
+    text-align: center;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    transition: background 0.15s;
+}
+
+.upload-blank-link:hover {
+    background: var(--color-primary-soft);
+}
+
+/* Fade the receipt panel in when one is selected */
+.receipt-content {
+    animation: receiptIn 0.25s ease;
+}
+
+@keyframes receiptIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
