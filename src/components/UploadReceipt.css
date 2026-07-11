@@ -1,5 +1,7 @@
 .upload-receipt {
-    max-width: 860px;
+    /* Fill wide screens; cap and center only on very large monitors */
+    max-width: 1600px;
+    margin: 0 auto;
 }
 
 .upload-receipt__hint {
