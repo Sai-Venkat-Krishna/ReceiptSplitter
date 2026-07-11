@@ -137,7 +137,7 @@ const UploadReceipt = ({ activeReceipt, onReceiptProcessed }) => {
                         receipt={activeReceipt}
                         onUpdateReceipt={onReceiptProcessed}
                     />
-                    <SplitItems receipt={activeReceipt} />
+                    <SplitItems receipt={activeReceipt} onSplitSaved={onReceiptProcessed} />
                 </div>
             )}
         </div>

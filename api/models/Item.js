@@ -22,6 +22,9 @@ const itemSchema = new mongoose.Schema({
             amount: Number
         }
     ],
+    // Friend names in column order — friendIndices in splitAssignments
+    // point into this array
+    splitFriends: [String],
     splitAssignments: [
         {
             itemIndex: Number,

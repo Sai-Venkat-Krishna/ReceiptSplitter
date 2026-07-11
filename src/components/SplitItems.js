@@ -1,61 +1,37 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { toPng } from 'html-to-image';
+import { toSvg } from 'html-to-image';
 import { useToast } from '../context/ToastContext';
 import { usePeople } from '../context/PeopleContext';
+import { computeDebts, restoreSplitState, buildShareText } from '../utils/splitUtils';
 import './SplitItems.css';
 
-const computeDebts = (totals) => {
-    const names = Object.keys(totals);
-    if (names.length < 2) return [];
-    const mean = Object.values(totals).reduce((a, b) => a + b, 0) / names.length;
-    const balances = names.map(name => ({ name, balance: totals[name] - mean }));
-    const debtors   = balances.filter(b => b.balance >  0.005).sort((a, b) => b.balance - a.balance);
-    const creditors = balances.filter(b => b.balance < -0.005).sort((a, b) => a.balance - b.balance);
-    const debts = [];
-    let i = 0, j = 0;
-    while (i < debtors.length && j < creditors.length) {
-        const amount = Math.min(debtors[i].balance, -creditors[j].balance);
-        debts.push({ from: debtors[i].name, to: creditors[j].name, amount });
-        debtors[i].balance  -= amount;
-        creditors[j].balance += amount;
-        if (Math.abs(debtors[i].balance)  < 0.005) i++;
-        if (Math.abs(creditors[j].balance) < 0.005) j++;
-    }
-    return debts;
-};
-
-const SplitItems = ({ receipt }) => {
+const SplitItems = ({ receipt, onSplitSaved }) => {
     const [friends, setFriends] = useState(['']);
     const [splits, setSplits] = useState({});
     const [totals, setTotals] = useState({});
     const [includeTax, setIncludeTax] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isCapturing, setIsCapturing] = useState(false);
-    const summaryRef = useRef(null);
+    const [shareImage, setShareImage] = useState(null); // { blob, dataUrl, file }
+    const captureRef = useRef(null);
     const { addToast } = useToast();
     const { people, addPerson } = usePeople();
 
     // Pre-load saved splits when receipt changes
     useEffect(() => {
-        if (receipt.splits && receipt.splits.length > 0) {
-            const savedNames = receipt.splits.map(s => s.personName);
-            setFriends(savedNames);
-
-            // Restore checkbox assignments
-            const restoredSplits = {};
-            (receipt.splitAssignments || []).forEach(({ itemIndex, friendIndices }) => {
-                restoredSplits[itemIndex] = {};
-                (friendIndices || []).forEach(fi => { restoredSplits[itemIndex][fi] = true; });
-            });
-            setSplits(restoredSplits);
-            setIncludeTax(receipt.splitIncludeTax || false);
+        const saved = restoreSplitState(receipt);
+        if (saved) {
+            setFriends(saved.friends);
+            setSplits(saved.splits);
+            setIncludeTax(saved.includeTax);
         } else {
             setFriends(['']);
             setSplits({});
             setTotals({});
             setIncludeTax(false);
         }
+        setShareImage(null);
     }, [receipt._id]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Recalculate totals whenever splits, friends, or tax toggle changes
@@ -117,15 +93,8 @@ const SplitItems = ({ receipt }) => {
         }));
     };
 
-    const buildShareText = () => {
-        const grandTotal = Object.values(totals).reduce((a, b) => a + b, 0);
-        const lines = Object.entries(totals).map(([n, t]) => `${n} — $${t.toFixed(2)}`);
-        const header = receipt.name ? `Split for ${receipt.name}` : 'Split Summary';
-        return [header, '', ...lines, '', `Total: $${grandTotal.toFixed(2)}`].join('\n');
-    };
-
     const handleShare = async () => {
-        const text = buildShareText();
+        const text = buildShareText(receipt, totals);
         if (navigator.share) {
             try {
                 await navigator.share({ text });
@@ -139,53 +108,101 @@ const SplitItems = ({ receipt }) => {
         }
     };
 
-    const handleCopyImage = async () => {
-        if (!summaryRef.current) return;
+    // Step 1: render the capture zone to a PNG and open the share modal.
+    // Sharing happens from the modal buttons so navigator.share / clipboard
+    // run inside a fresh tap — calling them after the slow capture loses the
+    // user-gesture window and iOS rejects them with NotAllowedError.
+    const handleGenerateImage = async () => {
+        if (!captureRef.current) return;
         setIsCapturing(true);
 
         try {
-            const el = summaryRef.current;
-            const naturalHeight = el.scrollHeight;
-            const dataUrl = await toPng(el, {
-                pixelRatio: 2,
-                height: naturalHeight,
-                style: { height: `${naturalHeight}px`, overflow: 'visible' },
+            const el = captureRef.current;
+            const width = el.offsetWidth;
+            const height = el.scrollHeight;
+            // The capture clones attributes, not live DOM state — sync the
+            // checked attribute so boxes toggled after mount show up
+            el.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                if (cb.checked) cb.setAttribute('checked', '');
+                else cb.removeAttribute('checked');
+            });
+            // toSvg + manual rasterization instead of toPng: the library's
+            // toPng waits on img.decode()/requestAnimationFrame, which never
+            // settles on iOS Safari (decode() rejects on large foreignObject
+            // SVGs) or in background tabs — the button hung on "Working…".
+            const svgUri = await toSvg(el, {
+                height,
+                // Embedding the cross-origin Google Font makes the capture
+                // slow and flaky (multi-MB inline SVG); the system-font
+                // fallback renders fine
+                skipFonts: true,
+                style: { height: `${height}px`, overflow: 'visible' },
                 filter: (node) => {
                     const cls = node.classList;
                     return !cls?.contains('split-debts') && !cls?.contains('split-summary__actions');
                 }
             });
-            const res = await fetch(dataUrl);
-            const blob = await res.blob();
-            const file = new File([blob], 'split-summary.png', { type: 'image/png' });
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = () => reject(new Error('SVG render failed'));
+                img.src = svgUri;
+            });
+            if (img.decode) await img.decode().catch(() => {});
+            // Give Safari a beat to paint the foreignObject before drawing
+            await new Promise(r => setTimeout(r, 100));
 
-            // Mobile: native share sheet with image file (iOS + Android)
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({ files: [file], title: 'Split Summary' });
-                addToast('Shared!', 'success');
-            // Desktop Chrome/Edge: copy image to clipboard
-            } else if (navigator.clipboard?.write) {
-                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-                addToast('Image copied to clipboard!', 'success');
-            // Last resort: download the file
-            } else {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'split-summary.png';
-                a.click();
-                URL.revokeObjectURL(url);
-                addToast('Image downloaded!', 'success');
-            }
-        } catch (err) {
-            if (err.name !== 'AbortError') addToast('Failed to share image', 'error');
+            const pixelRatio = 2;
+            const canvas = document.createElement('canvas');
+            canvas.width = width * pixelRatio;
+            canvas.height = height * pixelRatio;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            const dataUrl = canvas.toDataURL('image/png');
+            const blob = await new Promise((resolve, reject) =>
+                canvas.toBlob(b => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/png')
+            );
+            const file = new File([blob], 'split-summary.png', { type: 'image/png' });
+            setShareImage({ blob, dataUrl, file });
+        } catch {
+            addToast('Failed to create image', 'error');
         } finally {
             setIsCapturing(false);
         }
     };
 
+    const handleShareImageFile = async () => {
+        try {
+            await navigator.share({ files: [shareImage.file], title: 'Split Summary' });
+            setShareImage(null);
+        } catch (err) {
+            if (err.name !== 'AbortError') addToast('Share failed', 'error');
+        }
+    };
+
+    const handleCopyImageToClipboard = async () => {
+        try {
+            await navigator.clipboard.write([new ClipboardItem({ 'image/png': shareImage.blob })]);
+            addToast('Image copied to clipboard!', 'success');
+            setShareImage(null);
+        } catch {
+            addToast('Copy failed', 'error');
+        }
+    };
+
+    const handleDownloadImage = () => {
+        const url = URL.createObjectURL(shareImage.blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'split-summary.png';
+        a.click();
+        URL.revokeObjectURL(url);
+        setShareImage(null);
+    };
+
     const handleCopy = () => {
-        navigator.clipboard.writeText(buildShareText())
+        navigator.clipboard.writeText(buildShareText(receipt, totals))
             .then(() => addToast('Summary copied to clipboard!', 'success'))
             .catch(() => addToast('Copy failed', 'error'));
     };
@@ -201,7 +218,13 @@ const SplitItems = ({ receipt }) => {
                     .map(([fi]) => parseInt(fi))
             })).filter(a => a.friendIndices.length > 0);
 
-            await axios.put(`/api/receipts/${receipt._id}/splits`, { totals, assignments, includeTax });
+            const res = await axios.put(`/api/receipts/${receipt._id}/splits`, {
+                totals,
+                friends,
+                assignments,
+                includeTax
+            });
+            if (onSplitSaved) onSplitSaved(res.data);
             addToast('Split saved!', 'success');
         } catch {
             addToast('Failed to save split', 'error');
@@ -313,7 +336,7 @@ const SplitItems = ({ receipt }) => {
             </div>
 
             {/* Capture zone: table + summary */}
-            <div ref={summaryRef} className="split-capture-zone">
+            <div ref={captureRef} className="split-capture-zone">
 
             {/* Split Table */}
             <div className="split-table-wrap">
@@ -350,7 +373,7 @@ const SplitItems = ({ receipt }) => {
 
             {/* Summary */}
             {hasTotals && (
-                <div className="split-summary" ref={summaryRef}>
+                <div className="split-summary">
                     <div className="split-summary__header">
                         <h4>Summary</h4>
                         <div className="split-summary__actions">
@@ -364,7 +387,7 @@ const SplitItems = ({ receipt }) => {
                                 </svg>
                                 Share
                             </button>
-                            <button className="btn btn--sm btn--ghost split-summary__share-btn" onClick={handleCopyImage} disabled={isCapturing} title="Copy summary as image">
+                            <button className="btn btn--sm btn--ghost split-summary__share-btn" onClick={handleGenerateImage} disabled={isCapturing} title="Share summary as image">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                     <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
                                     <polyline points="21 15 16 10 5 21"/>
@@ -422,6 +445,38 @@ const SplitItems = ({ receipt }) => {
             )}
 
             </div>{/* end split-capture-zone */}
+
+            {/* Image share modal — buttons run in a fresh tap so the native
+                share sheet / clipboard aren't blocked by an expired gesture */}
+            {shareImage && (
+                <div className="share-modal-overlay" onClick={() => setShareImage(null)}>
+                    <div className="share-modal" onClick={e => e.stopPropagation()}>
+                        <img
+                            className="share-modal__preview"
+                            src={shareImage.dataUrl}
+                            alt="Split summary preview"
+                        />
+                        <div className="share-modal__actions">
+                            {navigator.canShare && navigator.canShare({ files: [shareImage.file] }) && (
+                                <button className="btn btn--sm btn--primary" onClick={handleShareImageFile}>
+                                    Share…
+                                </button>
+                            )}
+                            {navigator.clipboard?.write && typeof ClipboardItem !== 'undefined' && (
+                                <button className="btn btn--sm btn--ghost" onClick={handleCopyImageToClipboard}>
+                                    Copy
+                                </button>
+                            )}
+                            <button className="btn btn--sm btn--ghost" onClick={handleDownloadImage}>
+                                Download
+                            </button>
+                            <button className="btn btn--sm btn--ghost" onClick={() => setShareImage(null)}>
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

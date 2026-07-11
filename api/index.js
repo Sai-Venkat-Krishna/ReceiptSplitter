@@ -219,6 +219,7 @@ app.put('/api/receipts/:id/splits', async (req, res) => {
             {
                 $set: {
                     splits,
+                    splitFriends: Array.isArray(req.body.friends) ? req.body.friends : [],
                     splitAssignments: req.body.assignments || [],
                     splitIncludeTax: req.body.includeTax || false
                 }
